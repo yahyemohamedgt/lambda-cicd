@@ -1,0 +1,39 @@
+
+name: Deplot AWS Lambda
+
+on:
+  push:
+    branches:
+      - main 
+    paths:
+      - "lambda/"
+
+jobs:
+  deploy-lambda:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r lambda/requirements.txt -t lambda/
+
+      - name: Configure AWS Creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy Lambda function
+        run: |
+          cd lambda
+          zip -r function.zip .
+          aws lambda update-function-code --function-name my-test-cicd-lambda --zip-file fileb://function.zip
