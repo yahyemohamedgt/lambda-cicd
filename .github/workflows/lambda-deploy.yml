@@ -1,5 +1,5 @@
 
-name: Deplot AWS Lambda
+name: Deploy AWS Lambda
 
 on:
   push:
